@@ -1,4 +1,5 @@
 #include "../headers/piece.h"
+#include <stdio.h>
 
 int printPiece(uint8_t cell)
 {
@@ -7,11 +8,11 @@ int printPiece(uint8_t cell)
         return 0;
     }
 
-    if (cell & BLACK){
+    if (GET_COLOR(cell) == BLACK){
         printf("\033[0;31m");       // color for black
     } else printf("\033[0;34m");    // color for white
 
-    switch(cell & 0b00111){
+    switch(GET_PIECE(cell)){
         case PAWN: printf("P"); break;
         case BISHOP: printf("B"); break;
         case KNIGHT: printf("N"); break;
