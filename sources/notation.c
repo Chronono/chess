@@ -90,6 +90,10 @@ void pieceToMoveNotation(char *notation, move_t move, uint8_t *board, int *compt
             }
         break;
 
+        case KING:
+            notation[(*compt_notation)++] = 'K';   
+        break;
+
         case PAWN:
             if (ABS(move.ending_pos - move.initial_pos) == 7 || ABS(move.ending_pos - move.initial_pos) == 9)
             {

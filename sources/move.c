@@ -232,13 +232,46 @@ int getQueenMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
     uint8_t move_compt = 0;
     for (int dir = 0 ; dir < 8 ; dir++)
     {
-        move_compt += getSlidingPiecesMovesDir(board, pos, legal_moves_piece + move_compt, getAllS(dir), pos);
+        move_compt += getSlidingPiecesMovesDir(board, pos, legal_moves_piece + move_compt, getAllSlidingDir(dir), pos);
     }
     return move_compt;
 }
 
 int getKingMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
 {
+    int compt_move = 0;
+    for (int dir = 0 ; dir < 8 ; dir++)
+    {
+        if (board[pos + getAllSlidingDir(dir)] == EMPTY ||
+            GET_COLOR(board[pos + getAllSlidingDir(dir)]) != GET_COLOR(board[pos]))
+        {
+            switch (ABS(getAllSlidingDir(dir)))
+            {
+                case 1:
+                    if (((pos/8) - (pos + getAllSlidingDir(dir))/8) == 0)
+                    {
+                        move_t new_move = {
+                            pos,
+                            pos + getAllSlidingDir(dir), 
+                            0
+                        };
+                        legal_moves_piece[compt_move++] = new_move;
+                    }
+                break;
 
-    return 0;
+                default:
+                    if ((ABS((pos/8) - (pos + getAllSlidingDir(dir))/8) == 1) &&
+                    (((pos + getAllSlidingDir(dir)) < BOARD_SIZE) && ((pos + getAllSlidingDir(dir)) >= 0)))
+                    {
+                        move_t new_move = {
+                            pos,
+                            pos + getAllSlidingDir(dir), 
+                            0
+                        };
+                        legal_moves_piece[compt_move++] = new_move;
+                    }
+            }
+        }
+    }
+    return compt_move;
 }
