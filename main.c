@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     uint8_t boardgame[BOARD_SIZE];
     //setBoardToInitPos(boardgame);
     resetBoard(boardgame);
-    setBoardToFenPos(boardgame, "8/8/8/4n1P1/8/2R1BN2/8/8 w - - 0 1");
+    setBoardToFenPos(boardgame, "8/8/8/3Qn1P1/8/2R1BN2/8/8 w - - 0 1");
     printBoard(boardgame); printf("\n\n\n");
     move_t moves[100];
 

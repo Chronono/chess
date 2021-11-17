@@ -32,6 +32,21 @@ int getKnightDir(int index_dir)
     }
 }
 
+int getAllSlidingDir(int index_dir)
+{
+    switch(index_dir)
+    {
+        case 0: return DIR_UP;
+        case 1: return DIR_DOWN;
+        case 2: return DIR_LEFT;
+        case 3: return DIR_RIGHT;
+        case 4: return DIR_UP_RIGHT;
+        case 5: return DIR_UP_LEFT;
+        case 6: return DIR_DOWN_RIGHT;
+        case 7: return DIR_DOWN_LEFT;
+        default: exit(1);
+    }
+}
 int getStraightDir(int index_dir)
 {
     switch(index_dir)
@@ -40,9 +55,9 @@ int getStraightDir(int index_dir)
         case 1: return DIR_DOWN;
         case 2: return DIR_LEFT;
         case 3: return DIR_RIGHT;
-        default: exit(1);
     }
 }
+
 
 int getAllMoves(game_info_t *game_info, move_t* legal_moves, uint8_t *board)
 {
@@ -214,10 +229,16 @@ int getKnightMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
 
 int getQueenMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
 {
-    return 0;
+    uint8_t move_compt = 0;
+    for (int dir = 0 ; dir < 8 ; dir++)
+    {
+        move_compt += getSlidingPiecesMovesDir(board, pos, legal_moves_piece + move_compt, getAllS(dir), pos);
+    }
+    return move_compt;
 }
 
 int getKingMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
 {
+
     return 0;
 }
