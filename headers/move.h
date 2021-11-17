@@ -44,9 +44,9 @@ int pawn2case(uint8_t pos, uint8_t *board, game_info_t *game_info, move_t *moves
 
 //int getBishopMovesDir(uint8_t *board, uint8_t pos, move_t *moves, int dir, uint8_t initial_pos);
 int getBishopMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece);
-int getKnightMoves(uint8_t pos, move_t* legal_moves_piece);
-int getRookMoves(uint8_t pos, move_t* legal_moves_piece);
-int getQueenMoves(uint8_t pos, move_t* legal_moves_piece);
-int getKingMoves(uint8_t pos, move_t* legal_moves_piece);
+int getKnightMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece);
+int getRookMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece);
+int getQueenMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece);
+int getKingMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece);
 
 #endif

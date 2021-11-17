@@ -64,16 +64,16 @@ int getAllMoves(game_info_t *game_info, move_t* legal_moves, uint8_t *board)
                 moves_compt += getBishopMoves(board, cell_pos, legal_moves + moves_compt);
                 break;
             case KNIGHT:
-                moves_compt += getKnightMoves(cell_pos, legal_moves + moves_compt);
+                moves_compt += getKnightMoves(board, cell_pos, legal_moves + moves_compt);
                 break;
             case ROOK:
-                moves_compt += getRookMoves(cell_pos, legal_moves + moves_compt);
+                moves_compt += getRookMoves(board, cell_pos, legal_moves + moves_compt);
                 break;
             case QUEEN:
-                moves_compt += getQueenMoves(cell_pos, legal_moves + moves_compt);
+                moves_compt += getQueenMoves(board, cell_pos, legal_moves + moves_compt);
                 break;
             case KING:
-                moves_compt += getKingMoves(cell_pos, legal_moves + moves_compt);
+                moves_compt += getKingMoves(board, cell_pos, legal_moves + moves_compt);
                 break;
 
             default: printf("cell %u -> %u is not recognized\n",cell_pos, board[cell_pos]);                
@@ -141,7 +141,7 @@ int getPawnMoves(game_info_t *game_info, uint8_t pos, move_t* legal_moves_piece,
     return compt_move;
 }
 
-int getBishopMovesDir(uint8_t *board, uint8_t pos, move_t *moves, int dir, uint8_t initial_pos)  // Check if he can move one step more, if yes, it will be added otherwise, return 
+int getSlidingPiecesMovesDir(uint8_t *board, uint8_t pos, move_t *moves, int dir, uint8_t initial_pos)  // Check if he can move one step more, if yes, it will be added otherwise, return 
 {
     // check if border
     if (GET_COL(pos) == 0 && GET_COL(pos+dir) == 7) return 0;
@@ -152,7 +152,7 @@ int getBishopMovesDir(uint8_t *board, uint8_t pos, move_t *moves, int dir, uint8
         // if yes, add the move and recurse into the function with the next pos
         move_t new_move = {initial_pos, pos + dir};
         *moves = new_move;
-        return 1 + getBishopMovesDir(board, pos + dir, moves + 1, dir, initial_pos);
+        return 1 + getSlidingPiecesMovesDir(board, pos + dir, moves + 1, dir, initial_pos);
     }
     // check if next square is occupied by enemy
     if (GET_COLOR(board[pos + dir]) != GET_COLOR(board[initial_pos]))
@@ -167,14 +167,24 @@ int getBishopMovesDir(uint8_t *board, uint8_t pos, move_t *moves, int dir, uint8
 int getBishopMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
 {
     uint8_t move_compt = 0;
-    move_compt += getBishopMovesDir(board, pos, legal_moves_piece + move_compt, DIR_UP_LEFT, pos);
-    move_compt += getBishopMovesDir(board, pos, legal_moves_piece + move_compt, DIR_UP_RIGHT, pos);
-    move_compt += getBishopMovesDir(board, pos, legal_moves_piece + move_compt, DIR_DOWN_LEFT, pos);
-    move_compt += getBishopMovesDir(board, pos, legal_moves_piece + move_compt, DIR_DOWN_RIGHT, pos);
+    for (int dir = 0 ; dir < 4 ; dir++)
+    {
+        move_compt += getSlidingPiecesMovesDir(board, pos, legal_moves_piece + move_compt, getDiagonalDir(dir), pos);
+    }
     return move_compt;
 }
 
-int getKnightMoves(uint8_t pos, move_t* legal_moves_piece)
+int getRookMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
+{
+    uint8_t move_compt = 0;
+    for (int dir = 0 ; dir < 4 ; dir++)
+    {
+        move_compt += getSlidingPiecesMovesDir(board, pos, legal_moves_piece + move_compt, getStraightDir(dir), pos);
+    }
+    return move_compt;
+}
+
+int getKnightMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
 {
     int compt_move = 0;
     for (int dir = 0 ; dir < 8 ; dir++){
@@ -185,12 +195,15 @@ int getKnightMoves(uint8_t pos, move_t* legal_moves_piece)
             if (((ABS((getKnightDir(dir) + pos)/8 - (pos/8)) == 2) &&   (getKnightDir(dir) & 1))
               || (ABS((getKnightDir(dir) + pos)/8 - (pos/8)) == 1) && (!(getKnightDir(dir) & 1)))
             {
-                move_t new_move =  {
-                    pos, 
-                    pos + getKnightDir(dir), 
-                    0
-                };
-                legal_moves_piece[compt_move++] = new_move;
+                if ((board[pos + getKnightDir(dir)] == EMPTY) || (GET_COLOR(board[pos]) != GET_COLOR(board[pos + getKnightDir(dir)])))
+                {
+                    move_t new_move =  {
+                        pos, 
+                        pos + getKnightDir(dir), 
+                        0
+                    };
+                    legal_moves_piece[compt_move++] = new_move;
+                }
             }
         }
         printf("\n");
@@ -199,17 +212,12 @@ int getKnightMoves(uint8_t pos, move_t* legal_moves_piece)
     return compt_move;
 }
 
-int getRookMoves(uint8_t pos, move_t* legal_moves_piece)
+int getQueenMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
 {
     return 0;
 }
 
-int getQueenMoves(uint8_t pos, move_t* legal_moves_piece)
-{
-    return 0;
-}
-
-int getKingMoves(uint8_t pos, move_t* legal_moves_piece)
+int getKingMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
 {
     return 0;
 }
