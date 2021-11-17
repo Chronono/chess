@@ -12,6 +12,8 @@
 
 int setBoardToInitPos(uint8_t *board);
 int setBoardToFenPos(uint8_t *board, char *fen_code);
+int resetBoard(uint8_t *board);
+
 
 int decodeFenChar(char fen_char, int *index_fen);
 

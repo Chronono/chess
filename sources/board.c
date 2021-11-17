@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define DEBUG
+
 #include "../headers/board.h"
 #include "../headers/piece.h"
+
+#ifdef DEBUG
+#include "../headers/debug.h"
+#endif
 
 int setBoardToInitPos(uint8_t *board)
 {
@@ -45,9 +51,12 @@ int setBoardToFenPos(uint8_t *board, char *fen_code)
             index_pos++;
         }
         index_fen++;
+
+        #ifdef DEBUG
         printf("index_fen: %d\nindex_pos: %d\ntmp was:%d  ->  ", index_fen, index_pos, tmp);
         printf(PIECE_TO_BINARY_PATTERN, PIECE_TO_BINARY(tmp));
         printf("\n");
+        #endif
     }
 }
 
@@ -57,59 +66,85 @@ int decodeFenChar(char fen_char, int *index_pos)
     switch(fen_char)
     {
         case 'r':
+            #ifdef DEBUG
             printf("it's a black rook, %d\n", *index_pos);
+            #endif
             return ROOK | BLACK;
         
         case 'n':
+            #ifdef DEBUG
             printf("it's a black knight, %d\n", *index_pos);
+            #endif
             return KNIGHT | BLACK;
-        
+
         case 'b':
+            #ifdef DEBUG
             printf("it's a black bishop, %d\n", *index_pos);
+            #endif
             return BISHOP | BLACK;
-        
+
         case 'q':
+            #ifdef DEBUG
             printf("it's a black queen, %d\n", *index_pos);
+            #endif
             return QUEEN | BLACK;
-        
+
         case 'k':
+            #ifdef DEBUG
             printf("it's a black king, %d\n", *index_pos);
+            #endif
             return KING | BLACK;
-        
+
         case 'p':
+            #ifdef DEBUG
             printf("it's a black pawn, %d\n", *index_pos);
+            #endif
             return PAWN | BLACK;
-        
+
         case 'R':
+            #ifdef DEBUG
             printf("it's a white rook, %d\n", *index_pos);
+            #endif
             return ROOK | WHITE;
-        
+
         case 'N':
+            #ifdef DEBUG
             printf("it's a white knight, %d\n", *index_pos);
+            #endif
             return KNIGHT | WHITE;
-        
+
         case 'B':
+            #ifdef DEBUG
             printf("it's a white bishop, %d\n", *index_pos);
+            #endif
             return BISHOP | WHITE;
-        
+
         case 'Q':
+            #ifdef DEBUG
             printf("it's a white queen, %d\n", *index_pos);
+            #endif
             return QUEEN | WHITE;
-        
+
         case 'K':
+            #ifdef DEBUG
             printf("it's a white king, %d\n", *index_pos);
+            #endif
             return KING | WHITE;
-        
+
         case 'P':
+            #ifdef DEBUG
             printf("it's a white pawn, %d\n", *index_pos);
-            return PAWN | WHITE;
+            #endif            
+            return PAWN | WHITE;            
 
         case '/':
             return 0;
 
         default:
             fen_char_conv = (int)fen_char - 48;
+            #ifdef DEBUG
             printf("%d spaces to skip\n", fen_char_conv);
+            #endif
             if (fen_char_conv > 0 && fen_char_conv < 9)
             {
                 *index_pos+=fen_char_conv;

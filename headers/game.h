@@ -6,6 +6,7 @@
 typedef struct move {
     uint8_t initial_pos;
     uint8_t ending_pos;
+    uint8_t check;  // 0 no 1 check 2 checkmate
 }move_t;
 
 typedef struct game_info {

@@ -4,22 +4,29 @@
 #include "./headers/move.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char* argv[])
 {
+    char *not = malloc(sizeof(char) * MAX_NOTATION_SIZE);
     game_info_t game_info;
     game_info.color_to_move = WHITE;
     uint8_t boardgame[BOARD_SIZE];
     //setBoardToInitPos(boardgame);
     resetBoard(boardgame);
-    setBoardToFenPos(boardgame, "r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1.");
+    setBoardToFenPos(boardgame, "8/8/8/8/8/8/8/5N1N w - - 0 1");
     printBoard(boardgame); printf("\n\n\n");
     move_t moves[100];
 
     
-
-    printf("total pawn moves : %d\n", getAllMoves(&game_info, moves, boardgame));
-
+    int all_move = getAllMoves(&game_info, moves, boardgame);
+    printf("total pawn moves : %d\n", all_move);
+    for (int i = 0 ; i < all_move ; i++)
+    {
+        decodeMove(moves[i], boardgame, not);
+        printf("%s\n", not);
+    }
 
     return 0;
 }

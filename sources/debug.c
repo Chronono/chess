@@ -4,7 +4,7 @@
 #include "../headers/debug.h"
 #include "../headers/piece.h"
 #include "../headers/board.h"
-
+#include "../headers/move.h"
 
 void debug_printPiecesType(uint8_t *board)
 {
@@ -39,3 +39,4 @@ void debug_printPiecesColor(uint8_t *board)
         if (i < LINE_SIZE-1) printf("\n| ");
     }
 }
+
