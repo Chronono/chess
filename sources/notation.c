@@ -48,9 +48,13 @@ void pieceToMoveNotation(char *notation, move_t move, uint8_t *board, int *compt
             {
                 if ((move.ending_pos + getKnightDir(dir)) != move.initial_pos && (board[move.ending_pos + getKnightDir(dir)] == board[move.initial_pos]))
                 {
-                    notation[(*compt_notation)++] = getCol(move.initial_pos); 
-                    notation[(*compt_notation)++] = '8' - move.initial_pos/8; 
-                    break;
+                    if (((ABS((getKnightDir(dir) + move.ending_pos)/8 - (move.ending_pos/8)) == 2) &&   (getKnightDir(dir) & 1))
+                    || (ABS((getKnightDir(dir) + move.ending_pos)/8 - (move.ending_pos/8)) == 1) && (!(getKnightDir(dir) & 1)))
+                    {
+                        notation[(*compt_notation)++] = getCol(move.initial_pos); 
+                        notation[(*compt_notation)++] = '8' - move.initial_pos/8; 
+                        break;
+                    }
                 }
             }
         break;

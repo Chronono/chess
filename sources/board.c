@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// #define DEBUG
+//  
 
 #include "../headers/board.h"
 #include "../headers/piece.h"
