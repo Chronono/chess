@@ -2,7 +2,6 @@
 #define _DEBUG_H_
 
 #include "move.h"
-#include <stdint.h>
 
 #define PIECE_TO_BINARY_PATTERN "%c%c%c%c%c"
 #define PIECE_TO_BINARY(piece)      \
@@ -21,5 +20,8 @@ void pieceToMoveNotation(char *notation, move_t move, uint8_t *board, int *compt
 
 void debug_printPiecesColor(uint8_t *board);
 void debug_printPiecesType(uint8_t *board);
+void debug_printGameInfo(game_info_t game_info);
+
+
 
 #endif

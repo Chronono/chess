@@ -40,3 +40,17 @@ void debug_printPiecesColor(uint8_t *board)
     }
 }
 
+void debug_printGameInfo(game_info_t game_info)
+{
+    printf("|-----------------------------------------|\n");
+    printf("|                GAME INFO                |\n");
+    printf("|-----------------------------------------|\n");
+    printf("|                                         |\n");
+    printf("|  COLOR TO MOVE : %c                    |\n", (game_info.color_to_move == WHITE ? 'W' : 'B'));
+    printf("|  Moves compt : %2d                      |\n", game_info.moves_compt);
+    printf("|  Castle for White : %c %c            |\n", (game_info.castle_king_white == 1 ? 'K' : ' '), (game_info.castle_queen_white == 1 ? 'Q' : ' '));
+    printf("|  Castle for Black : %c %c            |\n", (game_info.castle_king_black == 1 ? 'k' : ' '), (game_info.castle_queen_black == 1 ? 'q' : ' '));
+    printf("|  En passant : %d                      |\n", game_info.en_passant_square);
+    printf("|                                         |\n");
+    printf("|-----------------------------------------|\n");
+}

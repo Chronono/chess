@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DEBUG
+// #define DEBUG
 
 #include "../headers/board.h"
 #include "../headers/piece.h"
@@ -36,7 +36,14 @@ int resetBoard(uint8_t *board)
     return 0;
 }
 
-int setBoardToFenPos(uint8_t *board, char *fen_code)
+
+int decodeNotationSquare(char letter, char digit)
+{
+    int letter_int = letter - 'a';
+    return letter_int + (8 * (8 - (digit - '0')));
+}
+
+int setBoardToFenPos(uint8_t *board, char *fen_code, game_info_t *game_info)
 {
     int index_fen = 0;
     int index_pos = 0;
@@ -58,6 +65,58 @@ int setBoardToFenPos(uint8_t *board, char *fen_code)
         printf("\n");
         #endif
     }
+    if (fen_code[index_fen] == ' ')
+        index_fen++; // blank space
+    switch (fen_code[index_fen++]){
+        case 'w':
+        game_info->color_to_move = WHITE;
+        break;
+
+        case 'b':
+        game_info->color_to_move = BLACK;
+        break;
+    }
+    if (fen_code[index_fen] == ' ')
+        index_fen++; // blank space
+    while(fen_code[index_fen] != ' ')
+    {
+        switch(fen_code[index_fen++])
+        {
+            case 'K':
+            game_info->castle_king_white = 1;
+            break;
+
+            case 'Q':
+            game_info->castle_queen_white = 1;
+            break;
+
+            case 'k':
+            game_info->castle_king_black = 1;
+            break;
+
+            case 'q':
+            game_info->castle_queen_black = 1;
+            break;
+        }
+    }
+    if (fen_code[index_fen] == ' ')
+        index_fen++; // blank space
+    if (fen_code[index_fen] != '-')
+    {
+        game_info->en_passant_square = decodeNotationSquare(fen_code[index_fen], fen_code[index_fen+1]);
+        index_fen+=2;
+    }
+    if (fen_code[index_fen] == ' ')
+        index_fen++; // blank space
+    if (fen_code[index_fen + 1] != ' '){
+        game_info->moves_compt = (fen_code[index_fen] - '0')*10 + (fen_code[index_fen + 1] - '0');
+        index_fen++;
+    } else {
+        game_info->moves_compt = fen_code[index_fen] - '0';
+    }
+    index_fen++;
+    if (fen_code[index_fen] == ' ')
+        index_fen++; // blank space
 }
 
 int decodeFenChar(char fen_char, int *index_pos)

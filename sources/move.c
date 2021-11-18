@@ -1,6 +1,9 @@
 #include "../headers/move.h"
 #include "../headers/board.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #define DEBUG
 
 //#define ON_C_COL(pos, c) ((GET_COL(pos) == c) ? 1 : 0)
@@ -59,36 +62,36 @@ int getStraightDir(int index_dir)
 }
 
 
-int getAllMoves(game_info_t *game_info, move_t* legal_moves, uint8_t *board)
+int getAllMoves(game_info_t *game_info, move_t* pseudo_legal_moves, uint8_t *board)
 {
     uint8_t moves_compt = 0;
+    moves_compt += getEnPassantMove(board, *game_info, pseudo_legal_moves + moves_compt);
     for (int cell_pos = 0 ; cell_pos < BOARD_SIZE ; cell_pos++)
     {
         if (board[cell_pos] == EMPTY || (GET_COLOR(board[cell_pos]) != game_info->color_to_move))
             continue;
 
         #ifdef DEBUG
-        printf("We need to calculate this piece %d\n", cell_pos);
         #endif
 
         switch(GET_PIECE(board[cell_pos])){
             case PAWN:
-                moves_compt += getPawnMoves(game_info, cell_pos, legal_moves + moves_compt, board);         
+                moves_compt += getPawnMoves(game_info, cell_pos, pseudo_legal_moves + moves_compt, board);         
                 break;
             case BISHOP:
-                moves_compt += getBishopMoves(board, cell_pos, legal_moves + moves_compt);
+                moves_compt += getBishopMoves(board, cell_pos, pseudo_legal_moves + moves_compt);
                 break;
             case KNIGHT:
-                moves_compt += getKnightMoves(board, cell_pos, legal_moves + moves_compt);
+                moves_compt += getKnightMoves(board, cell_pos, pseudo_legal_moves + moves_compt);
                 break;
             case ROOK:
-                moves_compt += getRookMoves(board, cell_pos, legal_moves + moves_compt);
+                moves_compt += getRookMoves(board, cell_pos, pseudo_legal_moves + moves_compt);
                 break;
             case QUEEN:
-                moves_compt += getQueenMoves(board, cell_pos, legal_moves + moves_compt);
+                moves_compt += getQueenMoves(board, cell_pos, pseudo_legal_moves + moves_compt);
                 break;
             case KING:
-                moves_compt += getKingMoves(board, cell_pos, legal_moves + moves_compt);
+                moves_compt += getKingMoves(board, cell_pos, pseudo_legal_moves + moves_compt);
                 break;
 
             default: printf("cell %u -> %u is not recognized\n",cell_pos, board[cell_pos]);                
@@ -105,7 +108,9 @@ int pawnEatDir(int dir, uint8_t pos, game_info_t *game_info, uint8_t *board, mov
             if ((GET_COLOR(board[pos + ((game_info->color_to_move == WHITE) ? -dir : dir)]) != game_info->color_to_move) && (GET_COLOR(board[pos + ((game_info->color_to_move == WHITE) ? -dir : dir)]) != 0)){
                 move_t new_move = {
                     pos, 
-                    pos+((game_info->color_to_move == WHITE) ? -dir : dir)
+                    pos+((game_info->color_to_move == WHITE) ? -dir : dir),
+                    0,
+                    BOARD_SIZE
                 };
                 *moves = new_move;
                 return 1;            
@@ -122,7 +127,8 @@ int pawn1case(uint8_t pos, uint8_t *board, game_info_t *game_info, move_t *moves
             move_t new_move = {
                 pos,
                 pos + ((game_info->color_to_move == WHITE) ? -8 : 8),
-                0
+                0,
+                BOARD_SIZE
             };
             *moves = new_move;
             return 1;
@@ -137,7 +143,9 @@ int pawn2case(uint8_t pos, uint8_t *board, game_info_t *game_info, move_t *moves
         if (board[pos + ((game_info->color_to_move == WHITE) ? -16 : 16)] == EMPTY){
             move_t new_move = {
                 pos,
-                pos + ((game_info->color_to_move == WHITE) ? -16 : 16)
+                pos + ((game_info->color_to_move == WHITE) ? -16 : 16),
+                0,
+                BOARD_SIZE
             };
             *moves = new_move;
             return 1;
@@ -146,13 +154,13 @@ int pawn2case(uint8_t pos, uint8_t *board, game_info_t *game_info, move_t *moves
     return 0;
 }
 
-int getPawnMoves(game_info_t *game_info, uint8_t pos, move_t* legal_moves_piece, uint8_t *board)
+int getPawnMoves(game_info_t *game_info, uint8_t pos, move_t* pseudo_legal_moves, uint8_t *board)
 {
     short int compt_move = 0;
-    compt_move+=pawnEatDir(ABS(DIR_UP_RIGHT), pos, game_info, board, legal_moves_piece);
-    compt_move+=pawnEatDir(ABS(DIR_UP_LEFT), pos, game_info, board, legal_moves_piece + compt_move);
-    compt_move+=pawn1case(pos, board, game_info, legal_moves_piece + compt_move);
-    compt_move+=pawn2case(pos, board, game_info, legal_moves_piece + compt_move);
+    compt_move+=pawnEatDir(ABS(DIR_UP_RIGHT), pos, game_info, board, pseudo_legal_moves);
+    compt_move+=pawnEatDir(ABS(DIR_UP_LEFT), pos, game_info, board, pseudo_legal_moves + compt_move);
+    compt_move+=pawn1case(pos, board, game_info, pseudo_legal_moves + compt_move);
+    compt_move+=pawn2case(pos, board, game_info, pseudo_legal_moves + compt_move);
     return compt_move;
 }
 
@@ -165,7 +173,12 @@ int getSlidingPiecesMovesDir(uint8_t *board, uint8_t pos, move_t *moves, int dir
     // check if next square is empty
     if (board[pos + dir] == EMPTY){
         // if yes, add the move and recurse into the function with the next pos
-        move_t new_move = {initial_pos, pos + dir};
+        move_t new_move = {
+            initial_pos, 
+            pos + dir,
+            0,
+            BOARD_SIZE
+        };
         *moves = new_move;
         return 1 + getSlidingPiecesMovesDir(board, pos + dir, moves + 1, dir, initial_pos);
     }
@@ -173,40 +186,43 @@ int getSlidingPiecesMovesDir(uint8_t *board, uint8_t pos, move_t *moves, int dir
     if (GET_COLOR(board[pos + dir]) != GET_COLOR(board[initial_pos]))
     {
         // if yes, add the move and return
-        move_t new_move = {initial_pos, pos + dir};
+        move_t new_move = {
+            initial_pos,
+            pos + dir,
+            0,
+            BOARD_SIZE
+        };
         *moves = new_move;
         return 1;
     }
     return 0;
 }   
-int getBishopMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
+int getBishopMoves(uint8_t *board, uint8_t pos, move_t* pseudo_legal_moves)
 {
     uint8_t move_compt = 0;
     for (int dir = 0 ; dir < 4 ; dir++)
     {
-        move_compt += getSlidingPiecesMovesDir(board, pos, legal_moves_piece + move_compt, getDiagonalDir(dir), pos);
+        move_compt += getSlidingPiecesMovesDir(board, pos, pseudo_legal_moves + move_compt, getDiagonalDir(dir), pos);
     }
     return move_compt;
 }
 
-int getRookMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
+int getRookMoves(uint8_t *board, uint8_t pos, move_t* pseudo_legal_moves)
 {
     uint8_t move_compt = 0;
     for (int dir = 0 ; dir < 4 ; dir++)
     {
-        move_compt += getSlidingPiecesMovesDir(board, pos, legal_moves_piece + move_compt, getStraightDir(dir), pos);
+        move_compt += getSlidingPiecesMovesDir(board, pos, pseudo_legal_moves + move_compt, getStraightDir(dir), pos);
     }
     return move_compt;
 }
 
-int getKnightMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
+int getKnightMoves(uint8_t *board, uint8_t pos, move_t* pseudo_legal_moves)
 {
     int compt_move = 0;
     for (int dir = 0 ; dir < 8 ; dir++){
-        printf("knight_pos + dir : %d %+d = %d\n", pos, getKnightDir(dir), pos + getKnightDir(dir));
         if (((pos + getKnightDir(dir)) < BOARD_SIZE) && ((pos + getKnightDir(dir)) >= 0))
         {
-            printf("\tnew_pos < BOARD_SIZE && new_pos >= 0\n\tABS((getKnightDir(dir) + pos)/8 - (pos/8)) = %d\n",ABS((getKnightDir(dir) + pos)/8 - (pos/8)));
             if (((ABS((getKnightDir(dir) + pos)/8 - (pos/8)) == 2) &&   (getKnightDir(dir) & 1))
               || (ABS((getKnightDir(dir) + pos)/8 - (pos/8)) == 1) && (!(getKnightDir(dir) & 1)))
             {
@@ -215,29 +231,28 @@ int getKnightMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
                     move_t new_move =  {
                         pos, 
                         pos + getKnightDir(dir), 
-                        0
+                        0,
+                        BOARD_SIZE
                     };
-                    legal_moves_piece[compt_move++] = new_move;
+                    pseudo_legal_moves[compt_move++] = new_move;
                 }
             }
         }
-        printf("\n");
     }
-    printf("return %d moves\n", compt_move);
     return compt_move;
 }
 
-int getQueenMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
+int getQueenMoves(uint8_t *board, uint8_t pos, move_t* pseudo_legal_moves)
 {
     uint8_t move_compt = 0;
     for (int dir = 0 ; dir < 8 ; dir++)
     {
-        move_compt += getSlidingPiecesMovesDir(board, pos, legal_moves_piece + move_compt, getAllSlidingDir(dir), pos);
+        move_compt += getSlidingPiecesMovesDir(board, pos, pseudo_legal_moves + move_compt, getAllSlidingDir(dir), pos);
     }
     return move_compt;
 }
 
-int getKingMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
+int getKingMoves(uint8_t *board, uint8_t pos, move_t* pseudo_legal_moves)
 {
     int compt_move = 0;
     for (int dir = 0 ; dir < 8 ; dir++)
@@ -253,9 +268,10 @@ int getKingMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
                         move_t new_move = {
                             pos,
                             pos + getAllSlidingDir(dir), 
-                            0
+                            0,
+                            BOARD_SIZE
                         };
-                        legal_moves_piece[compt_move++] = new_move;
+                        pseudo_legal_moves[compt_move++] = new_move;
                     }
                 break;
 
@@ -266,11 +282,47 @@ int getKingMoves(uint8_t *board, uint8_t pos, move_t* legal_moves_piece)
                         move_t new_move = {
                             pos,
                             pos + getAllSlidingDir(dir), 
-                            0
+                            0,
+                            BOARD_SIZE
                         };
-                        legal_moves_piece[compt_move++] = new_move;
+                        pseudo_legal_moves[compt_move++] = new_move;
                     }
             }
+        }
+    }
+    return compt_move;
+}
+
+
+int getCastleMoves(uint8_t *board, game_info_t game_info, move_t* pseudo_legal_moves)
+{
+
+}
+
+int getEnPassantMove(uint8_t *board, game_info_t game_info, move_t* pseudo_legal_moves)
+{
+    int compt_move = 0;
+    if (game_info.en_passant_square < BOARD_SIZE)
+    {
+        if (board[game_info.en_passant_square + (game_info.color_to_move == WHITE ? 7 : -7)] == (PAWN | game_info.color_to_move))
+        {
+            move_t new_move = {
+                game_info.en_passant_square + (game_info.color_to_move == WHITE ? 7 : -7), 
+                game_info.en_passant_square,
+                0,
+                game_info.en_passant_square + (game_info.color_to_move == WHITE ? -8 : 8)
+            };
+            pseudo_legal_moves[compt_move++] = new_move;
+        }
+        if (board[game_info.en_passant_square + (game_info.color_to_move == WHITE ? 9 : -9)] == (PAWN | game_info.color_to_move))
+        {
+            move_t new_move = {
+                game_info.en_passant_square + (game_info.color_to_move == WHITE ? 9 : -9), 
+                game_info.en_passant_square,
+                0,
+                game_info.en_passant_square + (game_info.color_to_move == WHITE ? -8 : 8)
+            };
+            pseudo_legal_moves[compt_move++] = new_move;
         }
     }
     return compt_move;

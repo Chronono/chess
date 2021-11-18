@@ -4,12 +4,16 @@ HEADERS_PATH=./headers/
 SOURCES_PATH=./sources/
 BUILD_PATH=./build/
 
-build: main board piece debug move notation
-	$(CC) -o exe $(BUILD_PATH)main.o $(BUILD_PATH)board.o $(BUILD_PATH)piece.o $(BUILD_PATH)debug.o $(BUILD_PATH)move.o $(BUILD_PATH)notation.o
+build: main board piece debug move notation game
+	$(CC) -o exe $(BUILD_PATH)main.o $(BUILD_PATH)board.o $(BUILD_PATH)piece.o $(BUILD_PATH)debug.o $(BUILD_PATH)move.o $(BUILD_PATH)notation.o $(BUILD_PATH)game.o
 
 main: main.c
 	$(CC) -c main.c
 	mv main.o $(BUILD_PATH)
+
+game: $(SOURCES_PATH)game.c
+	$(CC) -c $(SOURCES_PATH)game.c
+	mv game.o $(BUILD_PATH)
 
 notation: $(SOURCES_PATH)notation.c
 	$(CC) -c $(SOURCES_PATH)notation.c

@@ -115,7 +115,7 @@ void pieceToMoveNotation(char *notation, move_t move, uint8_t *board, int *compt
 
 void targetMoveNotation(char * notation, move_t move, uint8_t *board, int *compt_notation)
 {
-    if (board[move.ending_pos] != EMPTY)
+    if (board[move.ending_pos] != EMPTY || move.en_passant_pawn_eaten < BOARD_SIZE)
     {                     
         if (*compt_notation == 0){
             notation[(*compt_notation)++] = getCol(move.initial_pos); 
@@ -133,10 +133,16 @@ void decodeMove(move_t move, uint8_t *board, char *notation)
     pieceToMoveNotation(notation, move, board, &compt);
     targetMoveNotation(notation, move, board, &compt);
     if (move.check == 1){
-        notation[compt] = '+'; compt++;
+        notation[compt++] = '+';
     } else if (move.check == 2){
-        notation[compt] = '#'; compt++;
+        notation[compt++] = '#';
+    }
+    if (move.en_passant_pawn_eaten < BOARD_SIZE)
+    {
+        notation[compt++] = ' ';
+        notation[compt++] = 'e';
+        notation[compt++] = '.';
+        notation[compt++] = 'p';
     }
     notation[compt] = '\0';
-    return notation;
 }

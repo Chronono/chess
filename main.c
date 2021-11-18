@@ -1,7 +1,5 @@
 #include "./headers/board.h"
-#include "./headers/piece.h"
 #include "./headers/debug.h"
-#include "./headers/move.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,12 +9,14 @@ int main(int argc, char* argv[])
 {
     char *not = malloc(sizeof(char) * MAX_NOTATION_SIZE);
     game_info_t game_info;
-    game_info.color_to_move = WHITE;
+    initGameInfo(&game_info);
+
     uint8_t boardgame[BOARD_SIZE];
     //setBoardToInitPos(boardgame);
     resetBoard(boardgame);
-    setBoardToFenPos(boardgame, "8/8/8/3K4/8/8/8/8 w - - 0 1");
+    setBoardToFenPos(boardgame, "r1bqkbnr/ppp1p2p/n5p1/3pPpP1/8/8/PPPP1P1P/RNBQKBNR w KQkq f6 0 5", &game_info);
     printBoard(boardgame); printf("\n\n\n");
+    debug_printGameInfo(game_info);
     move_t moves[100];
 
     
